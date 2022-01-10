@@ -1,0 +1,4 @@
+<h2 align="center">Stock Price Prediction</h2>
+<p align="justify">
+The purpose of stock price prediction model is to predict the future stock price based on the historical data. Machine learning has been a blessing to the stock market in the recent years where the machine learning technologies are used to make predictions based on the values of current stock market indices by training on their previous values. While there are various machine learning models that can be used for prediction, this project focuses on the use of Auto Regressive Integrated Moving Average (ARIMA), Generalized Autoregressive Conditional Heteroscedasticity (GARCH), and Long Short-Term Memory (LSTM) Artificial Recurrent Neural Network (RNN) models to predict stock values. The project uses closing price of the stock index for predictive analytics.
+</p>
