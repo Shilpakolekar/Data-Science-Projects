@@ -1,0 +1,2 @@
+<h2 align="center">Insurance Policy Renewal Prediction</h2>
+<p align="justify">Insurance industry is highly competitive industry. There are many factors that impact insurance industry. One of the major decisions insurance company needs to make is whether to renew the policy or not based on the associated risk. This Project uses machine learning techniques to research and shed some lights on Insurance Policy Renewal Prediction. </p>
