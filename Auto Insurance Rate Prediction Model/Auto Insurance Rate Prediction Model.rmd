@@ -1,0 +1,207 @@
+---
+author: "Shilpa Kolekar"
+title: "Auto Insurance Rate Prediction Model"
+output: word_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+## Overall, write a coherent narrative that tells a story with the data as you complete this section.
+I have picked below link for my research. Dataset is on Kaggle site and 2 years old. https://www.kaggle.com/xiaomengsun/car-insurance-claim-data. Dataset contains .CSV file which has 10,303 total records and 27 columns. Majority of columns hold String, Integer and Boolean values.I have chosen this dataset because it has relevant variables that I can use in my research.
+```{r}
+# Read the file `car_insurance_claim.CSV` 
+ins_df <- read.csv("car_insurance_claim.CSV")
+str(ins_df)
+```
+
+ I have following type of data which will be used in this project.
+
+1.	KIDSDRIV – Number of kid drivers per household. It has integer value.
+2.	AGE – Age of the driver between age of 16 years - 99 years. It has integer value.
+3.  MSTATUS - Material status of the driver. It has integer value. 'Yes' has value of 1 and 'No' has value of 0.
+4.  GENDER - Gender of the driver. It has integer value. 'Male' has value of 1 and 'Female' has value of 0.    
+5.	TRAVTIME – Driver's travel time per day. It is given in minutes and has integer value. 
+6.	CLM_FREQ – Claim frequency of the driver. Variable will give you how many claims customer had in the past few years. Value is            integer. 
+7.	REVOKED – If the driver has revoked license then the value is 1, if not the value is 0. 
+8.  CLAIM_FLAG - Claim Flag on the drivers policy. If there is flag, value is 1 and if no flag it is 0. 	
+
+CLAIM_FLAG variable is the outcome variable while all other variables are independent variables. 
+
+The car_insurance_claim file has 10302 rows. After reviewing the file, I found that there are seven rows where the age is blank. These rows were removed from the dataset. GENDER variable has values “z_F” and “M” which were converted to integer values, 0 for z_F and 1 for M. MSTATUS variable has values “z_No” and “Yes” which were converted to integer values, 0 for z_No and 1 for Yes. REVOKED variable has values “No” and “Yes” which were converted to integer values, 0 for No and 1 for Yes. Any variables not being used were removed. After doing data cleaning process, the number of rows of the dataset were reduced from 10302 to 10295. 
+
+```{r}
+new_ins_df <- ins_df[!is.na(ins_df$AGE),]
+
+new_ins_df$REVOKED[new_ins_df$REVOKED == 'Yes'] <- 1
+new_ins_df$REVOKED[new_ins_df$REVOKED == 'No'] <- 0
+new_ins_df$REVOKED <- as.integer(new_ins_df$REVOKED)
+
+new_ins_df$MSTATUS[new_ins_df$MSTATUS == 'Yes'] <- 1
+new_ins_df$MSTATUS[new_ins_df$MSTATUS == 'z_No'] <- 0
+new_ins_df$MSTATUS <- as.integer(new_ins_df$MSTATUS)
+
+new_ins_df$GENDER[new_ins_df$GENDER == 'M'] <- 1
+new_ins_df$GENDER[new_ins_df$GENDER == 'z_F'] <- 0
+new_ins_df$GENDER <- as.integer(new_ins_df$GENDER)
+
+new_ins_df$ï..ID <- NULL
+new_ins_df$BIRTH <- NULL
+new_ins_df$HOMEKIDS <- NULL
+new_ins_df$YOJ <- NULL
+new_ins_df$INCOME <- NULL
+new_ins_df$PARENT1 <- NULL
+new_ins_df$HOME_VAL <- NULL
+new_ins_df$EDUCATION <- NULL
+new_ins_df$OCCUPATION <- NULL
+new_ins_df$CAR_USE <- NULL
+new_ins_df$BLUEBOOK <- NULL
+new_ins_df$TIF <- NULL
+new_ins_df$RED_CAR <- NULL
+new_ins_df$MVR_PTS <- NULL
+new_ins_df$CAR_AGE <- NULL
+new_ins_df$CAR_TYPE <- NULL
+new_ins_df$URBANICITY <- NULL
+new_ins_df$OLDCLAIM <- NULL
+new_ins_df$CLM_AMT <- NULL
+```
+I have first few rows of data as below which are from clean and final dataset. I used head() function to display top few records.
+
+```{r}
+head(new_ins_df)
+```
+
+## Summarize the problem statement you addressed.
+Problem statement for this project is, how insurance company predicts the risk of each individual and offer them appropriate auto rate, or in other words, how actuaries use to predict customers’ risk factors and come up with the auto rate. Following questions will focus on my problem statement.
+
+1.	Does travel time put you in high risk driver category?
+2.	Does number of kids driver in the household play any role?
+3.	Does gender play any role when actuaries decide rate?
+4.	Does age of the driver play any role?
+5.	Does past high claims frequency put individual in high risk driver category? 
+6.	Does traffic violations/tickets impact auto rate? 
+7.	Does history of suspended license impact auto rate?
+
+## Summarize how you addressed this problem statement (the data used and the methodology employed). 
+I  started my analysis by plotting my variables. Based on the type of the variable, I determined which graph to use.between I used box plot for age and travel time variables, and bar grapg for remaining variables. I compared each of my variable with "claim Flag" variable to check the relationship of them.
+
+```{r}
+library('ggplot2')
+ins_df_factor <- new_ins_df
+ins_df_factor$CLAIM_FLAG <- as.factor(ins_df_factor$CLAIM_FLAG)
+ins_df_factor$MSTATUS <- as.factor(ins_df_factor$MSTATUS)
+ins_df_factor$GENDER <- as.factor(ins_df_factor$GENDER)
+ins_df_factor$REVOKED <- as.factor(ins_df_factor$REVOKED)
+
+ggplot(ins_df_factor, aes(x=CLAIM_FLAG, y=AGE)) + geom_point() + geom_boxplot() + ggtitle("Claim Flag Vs. Age") + xlab("Claim Flag") + ylab("Age")
+ggplot(ins_df_factor, aes(x=CLAIM_FLAG, y=TRAVTIME)) + geom_point() + geom_boxplot() + ggtitle("Claim Flag Vs. Travel Time") + xlab("Claim Flag") + ylab("Travel Time")
+ggplot(ins_df_factor, aes(KIDSDRIV, color=CLAIM_FLAG)) + geom_bar() + ggtitle("Kids Driver") + xlab("Kids Driver") + ylab("Count")
+ggplot(ins_df_factor, aes(CLM_FREQ, color=CLAIM_FLAG)) + geom_bar() + ggtitle("Claims Frequency") + xlab("Claim Frequency") + ylab("Count")
+ggplot(ins_df_factor, aes(MSTATUS, color=CLAIM_FLAG)) + geom_bar() + ggtitle("Marital Status") + xlab("Marital Status") + ylab("Count")
+ggplot(ins_df_factor, aes(GENDER, color=CLAIM_FLAG)) + geom_bar() + ggtitle("Gender") + xlab("Gender") + ylab("Count")
+ggplot(ins_df_factor, aes(REVOKED, color=CLAIM_FLAG)) + geom_bar() + ggtitle("Revoked Licience") + xlab("Revoked Licience") + ylab("Count")
+```
+
+
+Based on visual of my graphs, I came up with following assumptions about my variables.
+
+1. Claim Flag Vs. Age - This box plot clearly indicates that when age goes up claims are going down, which means younger person has higher chances of getting claims.
+2. Claim Flag Vs. Travel Time - This box plot is almost the same for shorter travel time and longer travel time. It means travel time does not have much impact on claim.
+3. Kid Driver - Kids driver is 1 to 4 in range, and I decided to use histogram. BY looking at the graph, I can tell that those who have 0 kids have low claims but when number of kids grows in household, claims are growing respectively.
+4.Claims frequency - claims frequency is in 1 to 4 range and histogram was the better option to visualize this variable. Graph suggests that those who have more claim frequency in the past have higher chances of having future claims.
+5.Marital Status - I plotted this variable using Histogram and it indicates that married drivers are safer than single drivers. 
+6.Gender - Through histogram, I was able to determine that this variable does not show any significant difference wheather you are male or female.
+7.Revoked license - Through histogram, I was able to determine that driver with revoked license has more claims that driver with non-revoked license.  
+
+After visualizing each variables using graph, I found out Correlation Coefficient for each variable with CLAIM_FLAG variable by using cor() function. 
+
+```{r}
+cor(new_ins_df$CLAIM_FLAG, new_ins_df$KIDSDRIV)
+cor(new_ins_df$CLAIM_FLAG, new_ins_df$AGE)
+cor(new_ins_df$CLAIM_FLAG, new_ins_df$MSTATUS)
+cor(new_ins_df$CLAIM_FLAG, new_ins_df$GENDER)
+cor(new_ins_df$CLAIM_FLAG, new_ins_df$TRAVTIME)
+cor(new_ins_df$CLAIM_FLAG, new_ins_df$CLM_FREQ)
+cor(new_ins_df$CLAIM_FLAG, new_ins_df$REVOKED)
+
+```
+
+I compared correlation coefficient and my above analysis to see if they truly match. Below is my comparison.
+
+KIDDRIVER, low positive correlation, when kids per household increases, claims increase. 
+AGE, low negative correlation, when age goes up, claims are going down.
+MSTATUS, low negative correlation, when individual is single, claims are high and married has low claims.
+GENDER, no correlation, gender has no impact on claims.
+TRAVTIME, no correlation, travel time has no impact on claims.
+CLAM_FREQ, low positive correlation, more past claims has higher chances of having future claims.
+REVOKED, low positive correlation, those with revoked license have more chances of having claims.
+
+The outcomes of graphs and correlation coefficient match.
+
+After getting satisfactory results, I created a logistic regression model and checked p-value of each variable. 
+
+```{r}
+
+newModel <- glm(CLAIM_FLAG ~ KIDSDRIV + AGE + MSTATUS + GENDER + TRAVTIME + CLM_FREQ + REVOKED, data = new_ins_df, family = binomial)
+
+summary(newModel)
+
+```
+
+The summary of model indicates that all variables are statistically significant based on the p values, except for the variable gender. I then created confusion matrix and calculated accuracy of the model after splitting the dataset in 80-20 proportion for training and testing the data.
+
+```{r}
+data_split <- sample(1:nrow(new_ins_df), 0.8 * nrow(new_ins_df))
+train <- new_ins_df[data_split,]
+test <- new_ins_df[-data_split,]
+
+res <- predict(newModel, test, type="response")
+res <- predict(newModel, train, type="response")
+
+confmatrix <- table(Actual_Value = train$CLAIM_FLAG, Predicted_Value = res > 0.5)
+confmatrix
+
+accuracy <- (confmatrix[[1,1]] + confmatrix[[2,2]]) / sum(confmatrix)
+accuracy
+
+```
+
+The accuracy of the logistic regression model was 74.70%. 
+
+In the last step of the project, I created K-nearest neighbors algorithm. I split the data in 80-20 proportion and prepared train and test datasets. Data was run through train and test data set and confusion matrix was created and accuracy was calculated. 
+
+```{r}
+##extract 8th column of train dataset because it will be used as 'cl' argument in knn function.
+target_category <- new_ins_df[data_split,8]
+
+##extract 8th column if test dataset to measure the accuracy
+test_category <- new_ins_df[-data_split,8]
+
+##load the package class
+library("class")
+
+##run knn function, k=sqrt(10295)
+test_pred <- knn(train,test,cl=target_category,k=101)
+
+##create confusion matrix
+table <- table(test_category, test_pred)
+table
+
+# Accuracy
+(table[[1,1]]+ table[[2,2]]) / sum(table)
+
+```
+
+Accuracy rate was calculated which was 74.21%. 
+
+
+## Summarize the interesting insights that your analysis provided. 
+After analyzing graphs, coefficient correlation and logistic model, I concluded that auto rates vary for person to person and there are many factors that are involved in rate making. Factors that I chose to predict auto rate model gave me good idea on how insurance company predicts the rate. According to my model, individuals who are teenagers or in their 20's have higher rate compared to individuals in their 30-50's and older generation. Also, married couples are more safe drivers and therefore rate is lower for this category. Surprisingly, travel time and gender do not impact on auto rate much, but if you have revoked license and more claim frequency in past, that might cost you more.
+
+## Summarize the implications to the consumer (target audience) of your analysis. 
+My target audience is insurance companies and general public. Based on my analysis, insurance companies can use these factors to determine which individual should be charged more. Younger people, families with high number of kid drivers, single people, people with revoked license, and people with past claim history should be charged more compared to the opposite. 
+
+I can suggest to general public, that having a revoked license can cost more money on your rate. If you are young driver, your rate is going to be high. Keep your driving record clean and find out ways on how to save on auto rate. If you have more past claim, learn from past and see how you can avoid some driving mistakes. Past claims only stay for certain years on your records. If you have kids driver in the house, you are expected to pay more rate because risk is higher with new drivers. 
+
+## Discuss the limitations of your analysis and how you, or someone else, could improve or build on it.
+I was expecting to get at least one strong variable that has significant impact onrate making. I was open for positive or negative impact of that variable. Unfortunately all my variables are making some impact in positive and negative way, but I didn't have any variable in my model which stood out. If anybody is building on top of this model, I would suggest them to research and add more variables that could have significant impact on possibility of claims. 
