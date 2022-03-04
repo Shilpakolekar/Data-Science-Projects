@@ -1,0 +1,3 @@
+<h2 align="center">Air Travel Safety Visualization</h2>
+<p align="justify">What is the safest way to travel: Air, Railroad or Bus? For majority of commuters, travelling by road in a bus or a car is the way of day to day transportation. There are many people who have never traveled via airlines or railroad because they prefer to commute by road using their personal auto or by a bus. There are many people who have fear of traveling via airlines and railroad, and they don’t believe that traveling by air or rail is safer than traveling by bus. Data visualization techniques can help support that airline safety has increased over time due to technological improvements, and compared to other ways of traveling, air travel is the safest way of traveling.
+</p>
